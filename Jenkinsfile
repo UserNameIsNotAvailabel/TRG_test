@@ -1,12 +1,13 @@
 pipeline {
-    agent any
+    agent {
+        docker { 
+            image 'node:18.18.0-alpine3.18' 
+        }
+    }
     stages {
-        stage('Check Docker Version') {
+        stage('Test') {
             steps {
-                script {
-                    // Вы можете выполнять команды Docker внутри этой оболочки
-                    sh 'docker --version'
-                }
+                sh 'node --version'
             }
         }
     }
