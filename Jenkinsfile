@@ -26,6 +26,8 @@ pipeline {
       steps {
         sh 'docker pull artsemyeuroman/trgtest:hello_world'
         sh 'docker-compose up -d '
+      }
+    }
   }
   post {
     always {
