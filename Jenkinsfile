@@ -1,16 +1,31 @@
-stage('Build') {
-    steps {
-        script{
-            def current_image = docker.build("simple_docker:${env.BUILD_ID}", "./docker_path/")
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                            credentialsId: '<magic_id>',
-                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.REGISTRY}"
-                docker.withRegistry("https://${env.REGISTRY}") {
-                    current_image.push()
-                }
-            }
-        }
+pipeline {
+  agent any
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '5'))
+  }
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+  }
+  stages {
+    stage('Build') {
+      steps {
+        sh 'docker build -t artsemyeuroman/trgtest:hello_world .'
+      }
     }
+    stage('Login') {
+      steps {
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+      }
+    }
+    stage('Push') {
+      steps {
+        sh 'docker push artsemyeuroman/trgtest:hello_world'
+      }
+    }
+  }
+  post {
+    always {
+      sh 'docker logout'
+    }
+  }
 }
