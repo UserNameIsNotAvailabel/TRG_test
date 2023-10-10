@@ -22,6 +22,10 @@ pipeline {
         sh 'docker push artsemyeuroman/trgtest:hello_world'
       }
     }
+    stage('Deploy'){
+      steps {
+        sh 'docker pull artsemyeuroman/trgtest:hello_world'
+        sh 'docker-compose up -d '
   }
   post {
     always {
